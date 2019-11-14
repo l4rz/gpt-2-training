@@ -8,6 +8,13 @@ import time
 import memory_saving_gradients
 import horovod.tensorflow as hvd
 
+
+#
+# invoke it like 
+# PYTHONPATH=src; export PYTHONPATH;  HOROVOD_STALL_CHECK_DISABLE=1 horovodrun -np 8 -H localhost:4,nvidia2:4 python3 train-117-mk2.py  --dataset press-a23c-clean-04112019-norm-fixed.npz
+#
+
+
 import argparse
 from tensorflow.core.protobuf import rewriter_config_pb2
 
