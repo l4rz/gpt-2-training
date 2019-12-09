@@ -9,8 +9,7 @@ Disclaimer: Neither me nor this repo is associated in any way with OpenAI. I did
 1. [Training environment](#trainscript)
 2. [Dataset preparation](#dataset)
 3. [Experiments](#experiments)
-4. [Discussion](#discussion)
-5. [Conclusion and ideas](#conclusion)
+4. [Comments and ideas](#comments)
 
 ## Training environment <a name="trainscript"></a>
 
@@ -42,7 +41,7 @@ TBD
 
 TBD
 
-## Conclusion and ideas <a name="dataset"></a>
+## Comments and ideas <a name="comments"></a>
 
 TBD
 
