@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#
 # Usage:
 #  PYTHONPATH=src ./train --dataset <file|directory|glob>
 
@@ -12,14 +11,16 @@ import random
 import time
 import memory_saving_gradients
 import horovod.tensorflow as hvd
+
 import argparse
 from tensorflow.core.protobuf import rewriter_config_pb2
+
 import model, sample, encoder_sp as encoder
 from load_dataset import load_dataset, Sampler
 
 
-CHECKPOINT_DIR = 'checkpoint-117M'
-SAMPLE_DIR = 'samples-117M'
+CHECKPOINT_DIR = 'checkpoint-1558M'
+SAMPLE_DIR = 'samples'
 
 hvd.init()
 
@@ -31,17 +32,17 @@ def maketree(path):
 
 
 def train_main(dataset,
-               model_name='117M',
+               model_name='1558M',
                seed=None,
                msg=True,
-               batch_size=8,
-               learning_rate=0.000005,
-               sample_length=1023,
+               batch_size=12,
+               learning_rate=0.00001,
+               sample_length=300,
                sample_num=1,
-               sample_every=100,
+               sample_every=50,
                run_name='run1',
                restore_from='latest',
-               save_every=1000,
+               save_every=500,
                combine=50000):
 
     enc = encoder.get_encoder(model_name)
@@ -55,9 +56,13 @@ def train_main(dataset,
         raise ValueError(
             "Can't get samples longer than window size: %s" % hparams.n_ctx)
 
+    # TF config
+
     config = tf.ConfigProto()
     config.gpu_options.visible_device_list = str(hvd.local_rank())
     config.gpu_options.allow_growth = True
+
+    global_step = tf.Variable(0, trainable=False)
 
     with tf.Session(config=config) as sess:
         context = tf.placeholder(tf.int32, [batch_size, None])
@@ -73,25 +78,41 @@ def train_main(dataset,
             length=sample_length,
             context=context,
             batch_size=batch_size,
-            temperature=0.8,
+            temperature=1.0,
             top_k=40)
+
+        #global_step = tf.Variable(0, trainable=False)
+        counter = 1
 
         train_vars = [v for v in tf.trainable_variables() if 'model' in v.name]
 
-        opt = tf.train.AdamOptimizer(learning_rate=learning_rate)
+        #opt = tf.train.AdamOptimizer(learning_rate=learning_rate)
+        # l4rz 11/10/2019
+        decayed_lr = tf.train.exponential_decay(learning_rate, global_step, 100, 0.99, staircase=True)
+        opt = tf.train.AdamOptimizer(decayed_lr)
+        #opt = tf.train.GradientDescentOptimizer(decayed_lr)
         opt = hvd.DistributedOptimizer(opt)
-
-        # gradient checkpointing
-        # https://github.com/cybertronai/gradient-checkpointing/memory_saving_gradients.py
+        # this is original horovod
+        #train_op = opt.minimize(loss, var_list=train_vars)
+        # this is ours
         if (msg):
             print('Using memory saving gradients')
             opt_grads = memory_saving_gradients.gradients(loss, train_vars)
             opt_grads = list(zip(opt_grads, train_vars))
-            train_op = opt.apply_gradients(opt_grads)
+            train_op = opt.apply_gradients(opt_grads, global_step = global_step)
         else:
             print('Not using memory saving gradients')
-            train_op = opt.minimize(loss, var_list=train_vars)
+            #train_op = opt.minimize(loss, var_list=train_vars)
+            # l4rz 11/10
+            train_op = opt.minimize(loss, var_list=train_vars, global_step = global_step)
+        # [1,2]<stderr>:TypeError: apply_gradients() missing 1 required positional argument: 'grads_and_vars'
+        #summary_loss = tf.summary.scalar('loss', train_op)
 
+        #_, lv = sess.run((train_op, loss), feed_dict={context: batch})
+
+        # Horovod: broadcast initial variable states from rank 0 to all other processes.
+        # This is necessary to ensure consistent initialization of all workers when
+        # training is started with random weights or restored from a checkpoint.
         bcast = hvd.broadcast_global_variables(0)
 
         saver = tf.train.Saver(
@@ -185,12 +206,12 @@ def train_main(dataset,
                         generate_samples()
 
                     print(
-                        '[{counter} | {time:2.2f}] loss={loss:2.2f} avg={avg:2.2f}'
+                            '[{counter} | {time:2.2f}] loss={loss:2.4f} avg={avg:2.4f} lr={lr:.2e}'
                         .format(
                             counter=counter,
                             time=time.time() - start_time,
                             loss=lv,
-                            avg=avg_loss[0] / avg_loss[1]))
+                            avg=avg_loss[0] / avg_loss[1],lr=decayed_lr.eval()))
 
                 counter += 1
 
