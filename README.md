@@ -32,9 +32,10 @@ Quick start guide:
 8. encode the dataset using trained sp tokenizer model<br><br>
   <i>spm_encode --model="models/1558M/sp.model" --output_format=id < dataset.txt | split --lines=100000 --additional-suffix=.ids - /tmp/spencode/part$(printf %05d $i)</i><br><br>
   <i>PYTHONPATH=src ./encode.py --model_name="1558M" /tmp/spencode/ dataset.npz</i><br>
-9. put the proper hparams.json in the model dir (since we are training the model from scratch, we do not need checkpoint files, etc)
+9. put the proper hparams.json in the model directory (since we are training the model from scratch, we do not need checkpoint files, etc)
 10. initialize the model by running sess.run(tf.global_variables_initializer()) instead of saver.restore(sess, ckpt) (sorry i haven't bothered to make a separate script)
-11. proceed with training
+11. proceed with warmup and training
+
 
 ## Dataset preparation <a name="dataset"></a>
 
