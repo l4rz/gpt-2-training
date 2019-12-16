@@ -13,7 +13,7 @@ Disclaimer: Neither me nor this repo is associated in any way with OpenAI. I did
 
 ## Training environment <a name="trainscript"></a>
 
-I've used [nshepperd implementation](https://github.com/nshepperd/gpt-2) of training script. [Cybertronai gradient-checkpointing](https://github.com/cybertronai/gradient-checkpointing) was used in order to save GPU RAM.
+I used the [nshepperd implementation](https://github.com/nshepperd/gpt-2) of training script. [Cybertronai gradient-checkpointing](https://github.com/cybertronai/gradient-checkpointing) was used in order to save GPU RAM.
 
 Since the original vocab.bpe does not include Cyrillic alphabet (...), I've employed [Google SentencePiece](https://github.com/google/sentencepiece) tokenizer.
 
@@ -39,7 +39,37 @@ Quick start guide:
 
 ## Dataset preparation <a name="dataset"></a>
 
-TBD
+Getting a large enough corpus of Russian text is quite simple, for example, there is a 568Gb one on [Oscar](https://traces1.inria.fr/oscar/). However corpora like this are unsuitable for training of unsupervised language models in real life because of quality. One needs a fairy clean collection of quality articles. While preparing the WebText dataset, OpenAI did a clever trick of outsourcing text cleaning to Reddit users.
+
+I scraped a couple of Russian press sites, parsed HTML with beautifulsoup4 and saved parsed texts as well as metadata (headers, TL;DRs, timestamps) for further sorting and postprocessing in PKLs.
+
+For the beginning, I got rid of texts that had a significant percentage on non-Cyrillic characters. I've also discarded texts with cruel and unusual formatting (tables, programming code) as well as repetitive ones (stock market reports, weather, sports) and too boring (official documents). Tabs, spaces and dashes were normalized. Hashtags and weird glyphs were filtered out too. Texts shorter than 1024 bytes were discarded.
+
+Text paragraphs were separated with newline (\n) and <|n|> token. Each text was suffixed by <|endoftext|>.
+
+Overall, a lot of effort has been put into cleaning the dataset. It should be noted that in Russian we do not have this particular luxury of English - to be able to make a purely monolingual dataset. Modern Russian texts always include some % of English - companies' and news agencies' names, social media accounts, quotations, etc
+
+I've ended up with two datasets, 2000Mb and 4000Mb ones.
+
+After sentencepiece encoding, the 2Gb dataset became a 211M tokens one. This means that comression ratio of bytes to BPE tokens is around 9:1, or 4.5:1 in characters taking UTF-8 into account. This ratio is much higher compared to vocab.bpe used with the original GPT-2.
+
+<!-- During test runs, I've learned that book corpora do not work quite well, likely because the average book chapter doesn't fit into the model's attention window of 1,000 tokens.
+
+Pure news articles corpus didn't work very well, too, likely due to the lack of language diversity. -->
+
+
+the ones that "contribute nothing"
+
+
+
+
+
+
+I didn’t bothered to split data to train/eval.
+
+I ended up with "small" (2200M), "medium" (5Gb) and "large" (10Gb) datasets.
+
+
 
 ## Experiments <a name="experiments"></a>
 
