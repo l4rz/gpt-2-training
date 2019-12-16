@@ -58,19 +58,6 @@ After sentencepiece encoding, the 2Gb dataset became a 211M tokens one. This mea
 Pure news articles corpus didn't work very well, too, likely due to the lack of language diversity. -->
 
 
-the ones that "contribute nothing"
-
-
-
-
-
-
-I didn’t bothered to split data to train/eval.
-
-I ended up with "small" (2200M), "medium" (5Gb) and "large" (10Gb) datasets.
-
-
-
 ## Experiments <a name="experiments"></a>
 
 TBD
