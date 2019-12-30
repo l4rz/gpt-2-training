@@ -116,9 +116,9 @@ The model was initialized from scratch and warmed up with LR=10<sup>-8</sup> for
 
 After 25 epochs and 123k steps on a 117M-sized model (first 20 epochs took approximately 150 gpu/hours), I've got training loss of 2.86. The quality of the samples was far from desired. In addition to the usual GPT-2 glitches (such as repeated words in a sentence), the text was less coherent than the English 117M model released by OpenAI.
 
-Reducing the data set size (from 211M to 150M tokens) and filtering out the remaining English characters did not help much.  
+Reducing the dataset size (from 211M to 150M tokens) and filtering out the remaining English characters did not help much.  
 
-The 117M model as of my last run, trained for 123,000 steps, complete with sp.vocab and dataset used in training, is available for download [here](https://mega.nz/#!yJUiDaiS!FAs-iKmQu4ibfa6bzK-gq_AHz7k7Q4aTCztE0APZH6w) (1.35Gb file).
+The 117M model as of my last run, trained for 123k steps, complete with sp.vocab and dataset used in training, is available for download [here](https://mega.nz/#!yJUiDaiS!FAs-iKmQu4ibfa6bzK-gq_AHz7k7Q4aTCztE0APZH6w) (1.35Gb file).
 
 ## Larger models
 
@@ -128,7 +128,7 @@ I've achieved the similar results with larger models:
 | ------------- |:-------------:| -----:|
 | 117M      | 25 epochs, 123k steps | 2.86 |
 | 345M      | 13 epochs, 507k steps  |   2.83 |
-| 774M | 20 epochs, ??? steps     |   2,90 |
+| 774M | 20 epochs, ??? steps     |   2.90 |
 
 <!-- | "1B" | 15 epochs, 49k steps | 2.77 -->
 
@@ -146,9 +146,26 @@ Russian grammar is rather complex. Word order in Russian is much more flexible c
 
 In order to address the complexity, I tried to increase the capacity of the model. The most logical way [^2] seemed to increase the embedding size `n_embd` parameter that defines the size of both token embeddings (wte) and positional embeddings (wte).
 
-I wanted to increase the value `n_embd` after 1600 as it was used in 1558M model but I learned that the number of hyperparameters can quickly grow beyond 2B. A model with `{ "n_ctx": 1024,  "n_embd": 2400,  "n_head": 16,  "n_layer": 24 }` takes 6.8Gb on disk and becomes rather impractical to train on 32Gb GPU. Therefore, I settled on `{ "n_ctx": 1024,  "n_embd": 2000,  "n_head": 16,  "n_layer": 24 }`, 1.25B hyperparameters approximately. Number of layers and attention heads were the same as in 345M model but `n_embd` was greater compared to 1558M model.
+I wanted to increase the value `n_embd` (AKA D<sub>model</sub>) after 1600 as it was used in 1558M model but I learned that the number of hyperparameters can quickly grow beyond 2B. A model with `{ "n_ctx": 1024,  "n_embd": 2400,  "n_head": 16,  "n_layer": 24 }` takes 6.8Gb on disk and becomes rather impractical to train on 32Gb GPU. Therefore, I settled on `{ "n_ctx": 1024,  "n_embd": 2000,  "n_head": 16,  "n_layer": 24 }`. Number of layers and attention heads were the same as in 345M model but `n_embd` was greater compared to 1558M model.
 
 [^2]: Other approaches have been tried but ultimately failed.
+
+## 1250M model
+
+The new model with D<sub>model</sub>=2000 and 1250M hyperparameters (approximately) was initialized and trained with the same 211M dataset.
+
+[Training log of 1250M model first training run](1250M-results/trainlog-1250M-61k.txt)
+
+With 32Gb of VRAM, I've been able to use batch size of 16 per worker (128 combined for 8 GPUs). Initial LR was 10<sup>-4</sup>. The complete training log, reflecting LR changes, is available [here](1250M-results/trainlog-1250M-61k.txt).
+
+From the training loss of 3.00 (~6 epochs), the samples began to demonstrate consistency and were generally better than the previous run. I've continued training for 310 wallclock hours (accumulated 1800 GPU/hours), 27 epochs and reached training loss of 2.54.
+
+I've tested the model's ability to to perform summarization on news articles from the web. Some percentage of news articles in the dataset were salted with `ТЛ;ДР:` followed by article's summary or headline. Summarization behaviour was induced by Top-k random sampling with `k = 2` and providing the model a text to summarize followed by `ТЛ;ДР:` as conditional input.
+
+`interactive_conditional_samples.py --temperature=0.8 --top_k=2 --length=100`
+
+[A couple of summarization results](1250M-results/summarization-1250M-61k.txt)
+
 
 <!--
 ![Summarizer test #1](images/summarizing.png?raw=true "summarizer test #1")
