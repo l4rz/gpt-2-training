@@ -1,5 +1,5 @@
 # Training GPT-2 on a Russian language corpus
-
+ 
 <b>
 Disclaimer: Neither me nor this repo is associated in any way with OpenAI. I did my DYOR to the best of my ability, nevertheless I might be completely wrong about anything expressed below.
 </b>
