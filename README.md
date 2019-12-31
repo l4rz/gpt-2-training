@@ -10,7 +10,7 @@ Disclaimer: Neither me nor this repo is associated in any way with OpenAI. I did
 2. [Training environment](#trainscript)
 3. [Dataset preparation](#dataset)
 4. [Experiments](#experiments)
-5. [Comments](#comments)
+5. [Downloads](#downloads)
 
 ## 1. Quick start <a name="quickstart"></a>
 
@@ -71,7 +71,7 @@ Training with large models (>1B hyperparameters) involves a quite long initializ
 
 ```
 horovodrun --start-timeout 600 \
--np 8 -H localhost:8 python3 train.py --dataset dataset.npz
+-np 4 -H localhost:4 python3 train-1250M.py --dataset dataset.npz
 ```
 
 Running four workers on a single machine utilized almost 200Gb of DRAM with large models.
@@ -118,7 +118,8 @@ After 25 epochs and 123k steps on a 117M-sized model (first 20 epochs took appro
 
 Reducing the dataset size (from 211M to 150M tokens) and filtering out the remaining English characters did not help much.  
 
-The 117M model as of my last run, trained for 123k steps, complete with sp.vocab and dataset used in training, is available for download [here](https://mega.nz/#!yJUiDaiS!FAs-iKmQu4ibfa6bzK-gq_AHz7k7Q4aTCztE0APZH6w) (1.35Gb file).
+The 117M model as of my last run, trained for 123k steps, complete with sp.vocab and dataset used in training, is [available for download](#downloads)
+
 
 ## Larger models
 
@@ -136,7 +137,7 @@ It looks like I've always been hitting this 2.80 floor, something was wrong.
 
 ## Decreasing max token length in vocab
 
-I noticed that the compression ratio (bytes to tokens) of Russian text encoded to BPE is 2-3 times higher than that of the original GPT-2 vocab.bpe. Observing that a Russian text snippet translated into English varies just 10-15 percent in length, I thought that the text complexity per 1024 tokens would be much higher for Russian,  and this would lead to more *confused* model if this aspect is not addressed.
+I noticed that the compression ratio (bytes to tokens) of Russian text encoded to BPE is 2-3 times higher than that of the original GPT-2 vocab.bpe. Observing that a Russian text snippet translated into English varies just 10-15 percent in length, I assumed that the text complexity per 1024 tokens would be much higher for Russian, and this would lead to more perplexed model if this aspect is not addressed.
 
 I tried to decrease the maximum length of the subword fragment by training sentencepiece model with `spm_train --max_sentencepiece_length 5`. The 211M tokens dataset thus became 315M tokens one. Training a model with this type of encoding basically produced far worse results, though the curve of training loss per epoch was quite steeper and the final training loss was much less compared to the original sentencepiece model (just 2.02 after 4.5 epoch and 12,000 steps). The better the tokenizer performs, the worse the <i>indicated</i> perplexity of the model is.
 
@@ -160,7 +161,11 @@ With 32Gb of VRAM, I've been able to use batch size of 16 per worker (128 combin
 
 From the training loss of 3.00 (~6 epochs), the samples began to demonstrate consistency and were generally better than the previous run. I've continued training for 310 wallclock hours (accumulated 1800 GPU/hours), 27 epochs and reached training loss of 2.54.
 
-I've tested the model's ability to to perform summarization on news articles from the web. Some percentage of news articles in the dataset were salted with `ТЛ;ДР:` followed by article's summary or headline. Summarization behaviour was induced by Top-k random sampling with `k = 2` and providing the model a text to summarize followed by `ТЛ;ДР:` as conditional input.
+[Unconditional generation samples](1250M-results/unconditional-generation-61k.txt)
+
+[Conditional generation samples](1250M-results/conditional-generation-61k.txt)
+
+I've also tested the model's ability to to perform summarization on news articles from the web. Some percentage of news articles in the dataset were salted with `ТЛ;ДР:` followed by article's summary or headline. Summarization behaviour was induced by Top-k random sampling with `k = 2` and providing the model a text to summarize followed by `ТЛ;ДР:` as conditional input.
 
 `interactive_conditional_samples.py --temperature=0.8 --top_k=2 --length=100`
 
@@ -172,9 +177,15 @@ I've tested the model's ability to to perform summarization on news articles fro
 
 -->
 
-## 4. Comments and ideas <a name="comments"></a>
+## 4. Downloads <a name="downloads"></a>
 
-TBD
+## Pre-trained models
+
+1. 117M model trained with 2Gb dataset and sp vocab/model [1.35Gb file](https://mega.nz/#!yJUiDaiS!FAs-iKmQu4ibfa6bzK-gq_AHz7k7Q4aTCztE0APZH6w)
+
+2. 1250M model trained with 2Gb dataset, 61k steps, training loss 2.54, l4rz-russian-1250M-62000-release.tar [4.69Gb file](https://mega.nz/#!DNtilaxB!elM0PIt9piS1KFKR9KXmu7DqCYws94cNu-Our1IuN3M)
+
+3. 1250M model trained with 2Gb dataset, from 61k steps to 100k steps on 4Gb dataset, training loss 2.73 [4.69Gb file](https://mega.nz/#!bNUABIqD!d9sD3Cn50t3TB_MXvtRh9XQ_GYrjrfNk4qIOF2bUNiU)
 
 
 ## Written by

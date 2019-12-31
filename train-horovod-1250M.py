@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/bin/env python3
 # Usage:
 #  PYTHONPATH=src ./train --dataset <file|directory|glob>
 
@@ -15,11 +15,11 @@ import horovod.tensorflow as hvd
 import argparse
 from tensorflow.core.protobuf import rewriter_config_pb2
 
-import model, sample, encoder_sp as encoder
+import model as model, sample, encoder_sp as encoder
 from load_dataset import load_dataset, Sampler
 
 
-CHECKPOINT_DIR = 'checkpoint-1558M'
+CHECKPOINT_DIR = 'checkpoint-1250M'
 SAMPLE_DIR = 'samples'
 
 hvd.init()
@@ -32,26 +32,27 @@ def maketree(path):
 
 
 def train_main(dataset,
-               model_name='1558M',
+               model_name='1250M',
                seed=None,
                msg=True,
-               batch_size=12,
-               learning_rate=0.00001,
-               sample_length=300,
+               batch_size=16, 
+               learning_rate=0.00002, 
+               sample_length=512,
                sample_num=1,
-               sample_every=50,
+               sample_every=100,
                run_name='run1',
                restore_from='latest',
-               save_every=500,
+               save_every=1000,
                combine=50000):
 
     enc = encoder.get_encoder(model_name)
     hparams = model.default_hparams()
     with open(os.path.join('models', model_name, 'hparams.json')) as f:
         hparams.override_from_dict(json.load(f))
+        print ('n_ctx: ', hparams.n_ctx, 'n_head: ', hparams.n_head, 'n_embd: ', hparams.n_embd, 'n_layer: ', hparams.n_layer)
 
     if sample_length is None:
-        sample_length = hparams.n_ctx // 2
+        sample_length = hparams.n_ctx  
     elif sample_length > hparams.n_ctx:
         raise ValueError(
             "Can't get samples longer than window size: %s" % hparams.n_ctx)
@@ -59,6 +60,8 @@ def train_main(dataset,
     # TF config
 
     config = tf.ConfigProto()
+    #device_map = { 0:2, 0:3, 1:2, 1:3 }
+    #config.gpu_options.visible_device_list = str(device_map[hvd.rank()])
     config.gpu_options.visible_device_list = str(hvd.local_rank())
     config.gpu_options.allow_growth = True
 
@@ -78,7 +81,7 @@ def train_main(dataset,
             length=sample_length,
             context=context,
             batch_size=batch_size,
-            temperature=1.0,
+            temperature=0.9,
             top_k=40)
 
         #global_step = tf.Variable(0, trainable=False)
@@ -88,7 +91,7 @@ def train_main(dataset,
 
         #opt = tf.train.AdamOptimizer(learning_rate=learning_rate)
         # l4rz 11/10/2019
-        decayed_lr = tf.train.exponential_decay(learning_rate, global_step, 100, 0.99, staircase=True)
+        decayed_lr = tf.train.exponential_decay(learning_rate, global_step, 200, 0.999, staircase=True)
         opt = tf.train.AdamOptimizer(decayed_lr)
         #opt = tf.train.GradientDescentOptimizer(decayed_lr)
         opt = hvd.DistributedOptimizer(opt)
@@ -113,15 +116,18 @@ def train_main(dataset,
         # Horovod: broadcast initial variable states from rank 0 to all other processes.
         # This is necessary to ensure consistent initialization of all workers when
         # training is started with random weights or restored from a checkpoint.
+        print('Running hvd.broadcast_global_variables')
         bcast = hvd.broadcast_global_variables(0)
+        print('Done')
 
         saver = tf.train.Saver(
             var_list=train_vars,
             max_to_keep=5,
             keep_checkpoint_every_n_hours=2)
 
+        print('Running global_variables_initializer')
         sess.run(tf.global_variables_initializer())
-
+        print('Done')
 
         if restore_from == 'latest':
             ckpt = tf.train.latest_checkpoint(
@@ -133,10 +139,15 @@ def train_main(dataset,
         elif restore_from == 'fresh':
             ckpt = tf.train.latest_checkpoint(
                 os.path.join('models', model_name))
+        # comment out when running for 1st time
         else:
             ckpt = tf.train.latest_checkpoint(restore_from)
         print(str(hvd.local_rank()), 'Loading checkpoint', ckpt)
         saver.restore(sess, ckpt)
+
+        # uncomment when running for first time INIT THE MODEL
+        #print('tf.global_variables_initializer()')
+        #sess.run(tf.global_variables_initializer())
 
         bcast.run()
 

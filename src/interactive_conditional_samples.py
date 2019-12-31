@@ -9,13 +9,13 @@ import tensorflow as tf
 import model, sample, encoder_sp as encoder
 
 def interact_model(
-    model_name='1558M',
+    model_name='1250M',
     seed=None,
     nsamples=1,
     batch_size=1,
     length=None,
-    temperature=1,
-    top_k=0,
+    temperature=0.8,
+    top_k=40,
     run_name='run1',
 ):
     """
