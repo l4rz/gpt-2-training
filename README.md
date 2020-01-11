@@ -1,9 +1,13 @@
 # Training GPT-2 on a Russian language corpus
- 
+
 <b>
 Disclaimer: Neither me nor this repo is associated in any way with OpenAI. I did my DYOR to the best of my ability, nevertheless I might be completely wrong about anything expressed below.
 </b>
 
+
+## TL;DR
+
+I've trained a large GPT-2 (1.25B hyperparameters) on a pretty diverse Russian press corpus (~4Gb), achieved a training loss of 2.42 and liked the results. Trained model is available for download.
 
 ## Table of Contents
 1. [Quick start](#quickstart)
@@ -171,6 +175,13 @@ I've also tested the model's ability to to perform summarization on news article
 
 [A couple of summarization results](1250M-results/summarization-1250M-61k.txt)
 
+### Update
+
+Continuing training of this model and substituting 2Gb dataset with 4Gb one (~415M tokens), after 80k more steps (12.5 epochs, additional 1600 GPU/hours) training loss of 2.42 was achieved.
+
+![Example](1250M-results/final-sample-143k-steps.png)
+
+[Training log of the 2nd run](1250M-results/trainlog-1250M-61k-to-143k.txt)
 
 <!--
 ![Summarizer test #1](images/summarizing.png?raw=true "summarizer test #1")
@@ -185,7 +196,9 @@ I've also tested the model's ability to to perform summarization on news article
 
 2. 1250M model trained with 2Gb dataset, 61k steps, training loss 2.54, l4rz-russian-1250M-62000-release.tar [4.69Gb file](https://mega.nz/#!DNtilaxB!elM0PIt9piS1KFKR9KXmu7DqCYws94cNu-Our1IuN3M)
 
-3. 1250M model trained with 2Gb dataset, from 61k steps to 100k steps on 4Gb dataset, training loss 2.73 [4.69Gb file](https://mega.nz/#!bNUABIqD!d9sD3Cn50t3TB_MXvtRh9XQ_GYrjrfNk4qIOF2bUNiU)
+3. 1250M model trained with 2Gb dataset, from 61k steps to 143k steps on 4Gb dataset, training loss 2.42 [4.69Gb file](https://mega.nz/#!eAkk1KiL!IMd775sXb26aHDvd_vLOdQY8nf5Wh78qICpB3VJXB0M)
+
+<!-- incomplete 2nd run (https://mega.nz/#!bNUABIqD!d9sD3Cn50t3TB_MXvtRh9XQ_GYrjrfNk4qIOF2bUNiU) -->
 
 
 ## Written by
