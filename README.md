@@ -194,7 +194,7 @@ Continuing training of this model and substituting 2Gb dataset with 4Gb one (~41
 
 1. 117M model trained with 2Gb dataset and sp vocab/model [1.35Gb file](https://mega.nz/#!yJUiDaiS!FAs-iKmQu4ibfa6bzK-gq_AHz7k7Q4aTCztE0APZH6w)
 
-2. 1250M model trained with 2Gb dataset, 61k steps, training loss 2.54, l4rz-russian-1250M-62000-release.tar [4.69Gb file](https://mega.nz/#!DNtilaxB!elM0PIt9piS1KFKR9KXmu7DqCYws94cNu-Our1IuN3M)
+2. 1250M model trained with 2Gb dataset, 61k steps, training loss 2.54, [4.69Gb file](https://mega.nz/#!DNtilaxB!elM0PIt9piS1KFKR9KXmu7DqCYws94cNu-Our1IuN3M)
 
 3. 1250M model trained with 2Gb dataset, from 61k steps to 143k steps on 4Gb dataset, training loss 2.42 [4.69Gb file](https://mega.nz/#!eAkk1KiL!IMd775sXb26aHDvd_vLOdQY8nf5Wh78qICpB3VJXB0M)
 
