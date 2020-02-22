@@ -192,6 +192,14 @@ Continuing training of this model and substituting 2Gb dataset with 4Gb one (~41
 
 ## Pre-trained models
 
+
+<b>NOTE:</b> I apologize, while packaging some of pre-trained models I forgot to include the `checkpoint` file. It's impractical for me to re-upload those rather huge files, so please create an checkpoint file in the model dir, e.g. for the 61k steps one:
+
+```
+cd model_dir
+echo model_checkpoint_path: \"model-61000\" > checkpoint`
+```
+
 1. 117M model trained with 2Gb dataset and sp vocab/model [1.35Gb file](https://mega.nz/#!yJUiDaiS!FAs-iKmQu4ibfa6bzK-gq_AHz7k7Q4aTCztE0APZH6w)
 
 2. 1250M model trained with 2Gb dataset, 61k steps, training loss 2.54, [4.69Gb file](https://mega.nz/#!DNtilaxB!elM0PIt9piS1KFKR9KXmu7DqCYws94cNu-Our1IuN3M)
