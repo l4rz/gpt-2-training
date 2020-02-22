@@ -217,4 +217,4 @@ echo model_checkpoint_path: \"model-61000\" > checkpoint`
 
 ## Written by
 
-l4rz(https://twitter.com/l4rz)
+[l4rz](https://twitter.com/l4rz)
