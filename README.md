@@ -96,7 +96,7 @@ For the beginning, I got rid of texts that had a significant percentage on non-C
 <!-- - remove lines where percentage of upper case > 40%
 - remove articles where unlabeled dialogues (beginning with "-") contain >20% of all limes
 -->
-Text paragraphs were separated with newline (\n) and <|n|> token. Each text fragment was suffixed by <|endoftext|>.
+Text paragraphs were separated with newlines (\n) and <|n|> tokens. Each text fragment was suffixed by <|endoftext|> token.
 
 Overall, a lot of effort has been put into cleaning the dataset. Having a strictly monolingual dataset is a particular privilege of English; modern Russian texts always include some percent of Latin (English) proper nouns such as persons' and companies names, social media accounts, quotes, etc.
 
@@ -185,7 +185,7 @@ Continuing training of this model and substituting 2Gb dataset with 4Gb one (415
 
 ### Update 2
 
-In order to push things further the 4Gb dataset (415M tokens) was augmented with 3Gb of filtered fanfics, becoming a 7Gb one (862M tokens). Training was continued for 140k more steps (+10.5 epochs, additional 2800 GPU/hours), achieving training loss of 2.64. The final LR was LR=9.75<sup>-7</sup>. 
+In order to push things further the 4Gb dataset (415M tokens) was augmented with 3Gb of filtered fanfics, becoming a 7Gb one (862M tokens). Training was continued for 140k more steps (+10.5 epochs, additional 2800 GPU/hours), achieving training loss of 2.64. The final LR was LR=9.75<sup>-7</sup>.
 
 [Training log of the 3rd run](1250M-results/trainlog-1250M-143k-to-282k.txt)
 
@@ -210,7 +210,9 @@ echo model_checkpoint_path: \"model-61000\" > checkpoint`
 
 2. 1250M model trained with 2Gb dataset, 61k steps, training loss 2.54, [4.69Gb file](https://mega.nz/#!DNtilaxB!elM0PIt9piS1KFKR9KXmu7DqCYws94cNu-Our1IuN3M)
 
-3. 1250M model trained with 2Gb dataset, from 61k steps to 143k steps on 4Gb dataset, training loss 2.42 [4.69Gb file](https://mega.nz/#!eAkk1KiL!IMd775sXb26aHDvd_vLOdQY8nf5Wh78qICpB3VJXB0M)
+3. 1250M model trained with 4Gb dataset, from 61k steps to 143k steps, training loss 2.42 [4.69Gb file](https://mega.nz/#!eAkk1KiL!IMd775sXb26aHDvd_vLOdQY8nf5Wh78qICpB3VJXB0M)
+
+4. 1250M model trained with 7Gb dataset (press and fanfics), from 143k steps to 282k steps, training loss 2.64 [4.69Gb file](https://mega.nz/#!adlTjKSD!V_-FeS1xUio3MJleHq27tWe4XroXo0BRC9vZrs3xK0A)
 
 <!-- incomplete 2nd run (https://mega.nz/#!bNUABIqD!d9sD3Cn50t3TB_MXvtRh9XQ_GYrjrfNk4qIOF2bUNiU) -->
 
