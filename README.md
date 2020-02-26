@@ -9,7 +9,7 @@ Disclaimer: Neither me nor this repo is associated in any way with OpenAI. I did
 
 I've trained a large GPT-2 (1.25B hyperparameters) on a pretty diverse Russian press corpus (~4Gb), achieved a training loss of 2.42 and liked the results. Trained model is available for download.
 
-![Sample, 143k steps](1250M-results/final-sample-143k-steps.png)
+![Sample, 143k steps](images/final-sample-143k-steps.png)
 
 ## Table of Contents
 1. [Quick start](#quickstart)
@@ -186,6 +186,8 @@ Continuing training of this model and substituting 2Gb dataset with 4Gb one (415
 ### Update 2
 
 In order to push things further the 4Gb dataset (415M tokens) was augmented with 3Gb of filtered fanfics, becoming a 7Gb one (862M tokens). Training was continued for 140k more steps (+10.5 epochs, additional 2800 GPU/hours), achieving training loss of 2.64. The final LR was LR=9.75<sup>-7</sup>.
+
+![Sample, 282k steps](images/fanfic.png)
 
 [Training log of the 3rd run](1250M-results/trainlog-1250M-143k-to-282k.txt)
 
