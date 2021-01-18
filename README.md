@@ -7,7 +7,7 @@ Disclaimer: Neither me nor this repo is associated in any way with OpenAI. I did
 
 ## TL;DR
 
-I've trained a large GPT-2 (1.25B hyperparameters) on a pretty diverse Russian press corpus (~4Gb), achieved a training loss of 2.42 and liked the results. Trained model is available for download.
+I've trained a large GPT-2 (1.25B parameters) on a pretty diverse Russian press corpus (~4Gb), achieved a training loss of 2.42 and liked the results. Trained model is available for download.
 
 ![Sample, 143k steps](images/final-sample-143k-steps.png)
 
@@ -73,7 +73,7 @@ opt = hvd.DistributedOptimizer(opt)
 
 To run a Horovod cluster with two or more servers, one needs to configure ssh so the user running training script can ssh without password to the slave server. To minimize the latency the servers should be interconnected with 1Gbps or faster link.
 
-Training with large models (>1B hyperparameters) involves a quite long initialization, so I found it beneficial to increase the startup timeout in horovodrun:
+Training with large models (>1B parameters) involves a quite long initialization, so I found it beneficial to increase the startup timeout in horovodrun:
 
 ```
 horovodrun --start-timeout 600 \
@@ -153,13 +153,13 @@ Russian grammar is rather complex. Word order in Russian is much more flexible c
 
 In order to address the complexity, I tried to increase the capacity of the model. The most logical way [^2] seemed to increase the embedding size `n_embd` parameter that defines the size of both token embeddings (wte) and positional embeddings (wte).
 
-I wanted to increase the value `n_embd` (AKA D<sub>model</sub>) after 1600 as it was used in 1558M model but I learned that the number of hyperparameters can quickly grow beyond 2B. A model with `{ "n_ctx": 1024,  "n_embd": 2400,  "n_head": 16,  "n_layer": 24 }` takes 6.8Gb on disk and becomes rather impractical to train on 32Gb GPU. Therefore, I settled on `{ "n_ctx": 1024,  "n_embd": 2000,  "n_head": 16,  "n_layer": 24 }`. Number of layers and attention heads were the same as in 345M model but `n_embd` was greater compared to 1558M model.
+I wanted to increase the value `n_embd` (AKA D<sub>model</sub>) after 1600 as it was used in 1558M model but I learned that the number of parameters can quickly grow beyond 2B. A model with `{ "n_ctx": 1024,  "n_embd": 2400,  "n_head": 16,  "n_layer": 24 }` takes 6.8Gb on disk and becomes rather impractical to train on 32Gb GPU. Therefore, I settled on `{ "n_ctx": 1024,  "n_embd": 2000,  "n_head": 16,  "n_layer": 24 }`. Number of layers and attention heads were the same as in 345M model but `n_embd` was greater compared to 1558M model.
 
 [^2]: Other approaches have been tried but ultimately failed.
 
 ## 1250M model
 
-The new model with D<sub>model</sub>=2000 and 1250M hyperparameters (approximately) was initialized and trained with the same 211M dataset.
+The new model with D<sub>model</sub>=2000 and 1250M parameters (approximately) was initialized and trained with the same 211M dataset.
 
 [Training log of 1250M model first training run](1250M-results/trainlog-1250M-61k.txt)
 
